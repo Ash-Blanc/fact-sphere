@@ -1,73 +1,25 @@
-# Welcome to your Lovable project
+FactSphere is a vibrant, efficient scientific social platform where scientists and enthusiasts can:
 
-## Project info
+Share and discover breakthrough scientific facts via visually rich “Fact Cards”
 
-**URL**: https://lovable.dev/projects/84d34404-c8e7-4393-a333-f0fec4c63706
+Gain and build reputation through peer verification, quality contributions, and participation
 
-## How can I edit this code?
+Engage in meaningful, citation-backed discussion threads and collaborative research groups
 
-There are several ways of editing your application.
+Curate and learn via topic-based learning paths, daily science challenges, and an AI-personalized feed
 
-**Use Lovable**
+Key UI/UX principles:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/84d34404-c8e7-4393-a333-f0fec4c63706) and start prompting.
+Clean, modern, card-based interface with intuitive navigation and science-inspired aesthetics
 
-Changes made via Lovable will be committed automatically to this repo.
+Fast, engaging interactions (micro-interactions, real-time notifications, leaderboards, and achievements)
 
-**Use your preferred IDE**
+Highly accessible, responsive design for desktop and mobile
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Trust signals everywhere (verification badges, reputation scores, transparent fact trails)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Frictionless contribution (easy posting, quick verification, minimal barriers to engagement)
 
-Follow these steps:
+Powerful search, personal collections, and smart content recommendations
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/84d34404-c8e7-4393-a333-f0fec4c63706) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Mission: Make scientific knowledge accessible, verifiable, and community-driven—helping every contributor build their impact and reputation while accelerating science at internet speed.

@@ -19,8 +19,11 @@ const Hero = () => {
           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold text-primary-foreground leading-tight">
+            <span className="block bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent mb-4">
+              FactSphere
+            </span>
             Discover, Share & Verify
-            <span className="block bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">
+            <span className="block text-primary-foreground/90">
               Scientific Facts
             </span>
           </h1>

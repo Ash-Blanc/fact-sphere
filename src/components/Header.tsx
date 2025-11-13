@@ -11,7 +11,7 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <svg 
-            className="w-14 h-14 cursor-pointer" 
+            className="w-14 h-14 cursor-pointer transition-all duration-300 hover:scale-110 hover:brightness-110" 
             viewBox="0 0 140 116.81973272770657" 
             xmlns="http://www.w3.org/2000/svg"
             onClick={() => navigate("/")}

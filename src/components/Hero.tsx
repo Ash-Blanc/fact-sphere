@@ -20,7 +20,7 @@ const Hero = () => {
           
           <div className="flex flex-col items-center mb-6">
             <svg 
-              className="w-32 h-32 mb-4 transition-all duration-300 hover:scale-110" 
+              className="w-32 h-32 mb-4 transition-all duration-300 hover:scale-110 drop-shadow-[0_0_15px_rgba(139,92,246,0.4)] hover:drop-shadow-[0_0_25px_rgba(139,92,246,0.6)]" 
               viewBox="0 0 140 116.81973272770657" 
               xmlns="http://www.w3.org/2000/svg"
             >

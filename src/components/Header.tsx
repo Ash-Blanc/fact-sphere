@@ -1,16 +1,45 @@
-import { Search, Bell, User } from "lucide-react";
+import { Search, Bell, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { User as SupabaseUser } from "@supabase/supabase-js";
+import { useToast } from "@/hooks/use-toast";
 
 const Header = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+
+  useEffect(() => {
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out.",
+    });
+    navigate("/");
+  };
   
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate(user ? "/dashboard" : "/")}>
             <svg 
               className="w-14 h-14 transition-all duration-300 hover:scale-110 hover:brightness-110" 
               viewBox="0 0 140 116.81973272770657" 
@@ -72,17 +101,34 @@ const Header = () => {
             <Bell className="h-5 w-5" />
           </Button>
           
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => navigate("/profile/sarah-chen")}
-          >
-            <User className="h-5 w-5" />
-          </Button>
-          
-          <Button variant="hero" size="sm" className="hidden md:inline-flex">
-            Share a Fact
-          </Button>
+          {user ? (
+            <>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => navigate("/profile/sarah-chen")}
+              >
+                <User className="h-5 w-5" />
+              </Button>
+              
+              <Button variant="hero" size="sm" className="hidden md:inline-flex">
+                Share a Fact
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={handleLogout}
+                title="Sign out"
+              >
+                <LogOut className="h-5 w-5" />
+              </Button>
+            </>
+          ) : (
+            <Button onClick={() => navigate("/auth")}>
+              Sign In
+            </Button>
+          )}
         </div>
       </div>
     </header>

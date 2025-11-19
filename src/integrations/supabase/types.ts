@@ -14,7 +14,196 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activities: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      badges: {
+        Row: {
+          created_at: string | null
+          description: string
+          icon: string
+          id: string
+          name: string
+          rarity: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          icon: string
+          id?: string
+          name: string
+          rarity: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          rarity?: string
+          requirement_type?: string
+          requirement_value?: number
+        }
+        Relationships: []
+      }
+      facts: {
+        Row: {
+          category: string
+          content: string
+          created_at: string | null
+          id: string
+          is_verified: boolean | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          verification_count: number | null
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string | null
+          id?: string
+          is_verified?: boolean | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          verification_count?: number | null
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_verified?: boolean | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          verification_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          location: string | null
+          reputation: number | null
+          updated_at: string | null
+          username: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id: string
+          location?: string | null
+          reputation?: number | null
+          updated_at?: string | null
+          username?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          location?: string | null
+          reputation?: number | null
+          updated_at?: string | null
+          username?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_badges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

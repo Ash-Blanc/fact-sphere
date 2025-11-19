@@ -9,106 +9,113 @@ import {
   UserPlus,
   Award,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileActivityProps {
   userId: string;
 }
 
 const ProfileActivity = ({ userId }: ProfileActivityProps) => {
-  const activities = [
-    {
-      type: "fact_shared",
-      icon: TrendingUp,
-      color: "text-primary",
-      bgColor: "bg-primary/10",
-      title: "Shared a new fact",
-      description: "Quantum Entanglement Enables Faster-Than-Light Communication",
-      timestamp: "2 hours ago",
-      category: "Quantum Physics",
-    },
-    {
-      type: "verification",
-      icon: CheckCircle2,
-      color: "text-secondary",
-      bgColor: "bg-secondary/10",
-      title: "Verified a fact",
-      description: "Ocean Microplastics Found to Impact Marine Food Chain",
-      timestamp: "5 hours ago",
-      category: "Environmental Science",
-    },
-    {
-      type: "discussion",
-      icon: MessageCircle,
-      color: "text-accent",
-      bgColor: "bg-accent/10",
-      title: "Joined a discussion",
-      description: "Discussing implications of CRISPR gene editing in humans",
-      timestamp: "8 hours ago",
-      replies: 12,
-    },
-    {
-      type: "badge_earned",
-      icon: Award,
-      color: "text-accent",
-      bgColor: "bg-accent/10",
-      title: "Earned a new badge",
-      description: "Top Contributor - 100+ verified facts",
-      timestamp: "1 day ago",
-      rarity: "Legendary",
-    },
-    {
-      type: "collection_created",
-      icon: BookMarked,
-      color: "text-primary",
-      bgColor: "bg-primary/10",
-      title: "Created a collection",
-      description: "Quantum Computing Breakthroughs",
-      timestamp: "2 days ago",
-      factCount: 24,
-    },
-    {
-      type: "user_followed",
-      icon: UserPlus,
-      color: "text-secondary",
-      bgColor: "bg-secondary/10",
-      title: "Started following",
-      description: "Prof. James Wilson",
-      timestamp: "3 days ago",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=James",
-    },
-    {
-      type: "fact_shared",
-      icon: TrendingUp,
-      color: "text-primary",
-      bgColor: "bg-primary/10",
-      title: "Shared a new fact",
-      description: "Brain-Computer Interface Breakthrough",
-      timestamp: "4 days ago",
-      category: "Neuroscience",
-    },
-    {
-      type: "verification",
-      icon: CheckCircle2,
-      color: "text-secondary",
-      bgColor: "bg-secondary/10",
-      title: "Verified 3 facts",
-      description: "In Renewable Energy category",
-      timestamp: "5 days ago",
-      category: "Renewable Energy",
-    },
-  ];
+  const [activities, setActivities] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchActivities = async () => {
+      const { data, error } = await supabase
+        .from('activities')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (!error && data) {
+        setActivities(data.map(activity => {
+          const baseActivity = {
+            type: activity.activity_type,
+            icon: getIconForType(activity.activity_type),
+            color: getColorForType(activity.activity_type),
+            bgColor: getBgColorForType(activity.activity_type),
+            title: activity.title,
+            description: activity.description,
+            timestamp: formatTimestamp(activity.created_at),
+          };
+          
+          // Safely merge metadata if it exists and is an object
+          if (activity.metadata && typeof activity.metadata === 'object') {
+            return { ...baseActivity, ...activity.metadata };
+          }
+          
+          return baseActivity;
+        }));
+      }
+    };
+
+    fetchActivities();
+  }, [userId]);
+
+  const getIconForType = (type: string) => {
+    switch (type) {
+      case 'fact_shared': return TrendingUp;
+      case 'verification': return CheckCircle2;
+      case 'discussion': return MessageCircle;
+      case 'badge_earned': return Award;
+      default: return TrendingUp;
+    }
+  };
+
+  const getColorForType = (type: string) => {
+    switch (type) {
+      case 'fact_shared': return 'text-primary';
+      case 'verification': return 'text-secondary';
+      case 'discussion': return 'text-accent';
+      case 'badge_earned': return 'text-accent';
+      default: return 'text-primary';
+    }
+  };
+
+  const getBgColorForType = (type: string) => {
+    switch (type) {
+      case 'fact_shared': return 'bg-primary/10';
+      case 'verification': return 'bg-secondary/10';
+      case 'discussion': return 'bg-accent/10';
+      case 'badge_earned': return 'bg-accent/10';
+      default: return 'bg-primary/10';
+    }
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(hours / 24);
+
+    if (hours < 1) return 'Just now';
+    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Recent Activity</h2>
         <Badge variant="secondary" className="bg-primary/10 text-primary">
-          {activities.length} activities
+          {activities.length} {activities.length === 1 ? 'activity' : 'activities'}
         </Badge>
       </div>
 
-      <div className="space-y-4">
-        {activities.map((activity, index) => (
+      {activities.length === 0 ? (
+        <Card className="p-12 text-center bg-gradient-card">
+          <Award className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <h3 className="font-semibold text-lg mb-2">No activity yet</h3>
+          <p className="text-muted-foreground">
+            Activity will appear here as the user interacts with the platform
+          </p>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {activities.map((activity, index) => (
           <Card
             key={index}
             className="p-6 bg-gradient-card shadow-card hover:shadow-card-hover transition-all"
@@ -168,8 +175,9 @@ const ProfileActivity = ({ userId }: ProfileActivityProps) => {
               </div>
             </div>
           </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

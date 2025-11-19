@@ -8,105 +8,134 @@ import {
   Flame, 
   Target,
   Trophy,
-  Shield
+  Shield,
+  Sparkles,
+  CheckCircle2,
+  MessageCircle
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileBadgesProps {
   userId: string;
   reputation: number;
 }
 
+interface BadgeData {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  rarity: string;
+  requirement_type: string;
+  requirement_value: number;
+  unlocked: boolean;
+  earned_at?: string;
+  progress?: number;
+}
+
 const ProfileBadges = ({ userId, reputation }: ProfileBadgesProps) => {
-  const badges = [
-    {
-      icon: Crown,
-      name: "Top Contributor",
-      description: "Contributed 100+ verified facts",
-      rarity: "Legendary",
-      color: "text-accent",
-      bgColor: "bg-accent/10",
-      borderColor: "border-accent/20",
-      unlocked: true,
-      date: "Earned Mar 15, 2024",
-    },
-    {
-      icon: Trophy,
-      name: "Quantum Expert",
-      description: "50+ facts in Quantum Physics",
-      rarity: "Epic",
-      color: "text-secondary",
-      bgColor: "bg-secondary/10",
-      borderColor: "border-secondary/20",
-      unlocked: true,
-      date: "Earned Feb 8, 2024",
-    },
-    {
-      icon: Flame,
-      name: "7-Day Streak",
-      description: "Posted facts for 7 consecutive days",
-      rarity: "Rare",
-      color: "text-primary",
-      bgColor: "bg-primary/10",
-      borderColor: "border-primary/20",
-      unlocked: true,
-      date: "Earned Jan 22, 2024",
-    },
-    {
-      icon: Shield,
-      name: "Verified Scientist",
-      description: "Profile verified by the community",
-      rarity: "Special",
-      color: "text-secondary",
-      bgColor: "bg-secondary/10",
-      borderColor: "border-secondary/20",
-      unlocked: true,
-      date: "Earned Jan 5, 2024",
-    },
-    {
-      icon: Star,
-      name: "Rising Star",
-      description: "Reached 5000 reputation points",
-      rarity: "Rare",
-      color: "text-primary",
-      bgColor: "bg-primary/10",
-      borderColor: "border-primary/20",
-      unlocked: true,
-      date: "Earned Dec 12, 2023",
-    },
-    {
-      icon: Zap,
-      name: "Quick Responder",
-      description: "First to verify 25 facts",
-      rarity: "Uncommon",
-      color: "text-accent",
-      bgColor: "bg-accent/10",
-      borderColor: "border-accent/20",
-      unlocked: true,
-      date: "Earned Nov 28, 2023",
-    },
-    {
-      icon: Target,
-      name: "Precision Master",
-      description: "100% verification accuracy",
-      rarity: "Legendary",
-      color: "text-accent",
-      bgColor: "bg-accent/10",
-      borderColor: "border-accent/20",
-      unlocked: false,
-      progress: 87,
-    },
-    {
-      icon: Award,
-      name: "Community Leader",
-      description: "Help 50 users with verifications",
-      rarity: "Epic",
-      color: "text-secondary",
-      bgColor: "bg-secondary/10",
-      borderColor: "border-secondary/20",
-      unlocked: false,
-      progress: 34,
-    },
-  ];
+  const [badges, setBadges] = useState<any[]>([]);
+  const [userStats, setUserStats] = useState({ facts_count: 0, verifications_count: 0, discussions_count: 0 });
+
+  useEffect(() => {
+    const fetchBadgesAndProgress = async () => {
+      // Fetch all available badges
+      const { data: allBadges } = await supabase
+        .from('badges')
+        .select('*')
+        .order('requirement_value', { ascending: true });
+
+      // Fetch user's earned badges
+      const { data: userBadges } = await supabase
+        .from('user_badges')
+        .select('badge_id, earned_at')
+        .eq('user_id', userId);
+
+      // Fetch user stats for progress calculation
+      const { count: factsCount } = await supabase
+        .from('facts')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      const { data: activities } = await supabase
+        .from('activities')
+        .select('activity_type')
+        .eq('user_id', userId);
+
+      const stats = {
+        facts_count: factsCount || 0,
+        verifications_count: activities?.filter(a => a.activity_type === 'verification').length || 0,
+        discussions_count: activities?.filter(a => a.activity_type === 'discussion').length || 0,
+      };
+      setUserStats(stats);
+
+      const earnedBadgeIds = new Set(userBadges?.map(ub => ub.badge_id) || []);
+
+      const processedBadges = allBadges?.map(badge => {
+        const isUnlocked = earnedBadgeIds.has(badge.id);
+        const userBadge = userBadges?.find(ub => ub.badge_id === badge.id);
+        
+        let progress = 0;
+        if (!isUnlocked) {
+          const currentValue = stats[badge.requirement_type as keyof typeof stats] || 0;
+          progress = Math.min(Math.round((currentValue / badge.requirement_value) * 100), 99);
+        }
+
+        return {
+          icon: getIconComponent(badge.icon),
+          name: badge.name,
+          description: badge.description,
+          rarity: badge.rarity.charAt(0).toUpperCase() + badge.rarity.slice(1),
+          color: getColorForRarity(badge.rarity),
+          bgColor: getBgColorForRarity(badge.rarity),
+          borderColor: getBorderColorForRarity(badge.rarity),
+          unlocked: isUnlocked,
+          date: userBadge ? `Earned ${new Date(userBadge.earned_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : undefined,
+          progress,
+        };
+      }) || [];
+
+      setBadges(processedBadges);
+    };
+
+    fetchBadgesAndProgress();
+  }, [userId]);
+
+  const getIconComponent = (iconName: string) => {
+    const icons: Record<string, any> = {
+      Crown, Trophy, Flame, Shield, Star, Zap, Target, Award,
+      Sparkles, CheckCircle2, MessageCircle
+    };
+    return icons[iconName] || Award;
+  };
+
+  const getColorForRarity = (rarity: string) => {
+    switch (rarity) {
+      case 'legendary': return 'text-accent';
+      case 'epic': return 'text-secondary';
+      case 'rare': return 'text-primary';
+      default: return 'text-muted-foreground';
+    }
+  };
+
+  const getBgColorForRarity = (rarity: string) => {
+    switch (rarity) {
+      case 'legendary': return 'bg-accent/10';
+      case 'epic': return 'bg-secondary/10';
+      case 'rare': return 'bg-primary/10';
+      default: return 'bg-muted/10';
+    }
+  };
+
+  const getBorderColorForRarity = (rarity: string) => {
+    switch (rarity) {
+      case 'legendary': return 'border-accent/20';
+      case 'epic': return 'border-secondary/20';
+      case 'rare': return 'border-primary/20';
+      default: return 'border-border/30';
+    }
+  };
 
   const rarityColors: Record<string, string> = {
     Legendary: "bg-accent text-accent-foreground",

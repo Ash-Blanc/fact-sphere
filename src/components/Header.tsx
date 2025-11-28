@@ -111,7 +111,12 @@ const Header = () => {
                 <User className="h-5 w-5" />
               </Button>
               
-              <Button variant="hero" size="sm" className="hidden md:inline-flex">
+              <Button 
+                variant="hero" 
+                size="sm" 
+                className="hidden md:inline-flex"
+                onClick={() => navigate("/submit")}
+              >
                 Share a Fact
               </Button>
 
